@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="pt-BR">
 <head th:fragment="head(titulo)">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -19,13 +19,31 @@
         <div class="collapse navbar-collapse" id="menu">
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item"><a class="nav-link" th:classappend="${ativo == 'agenda'} ? active"
-                                        th:href="@{/agenda}"><i class="bi bi-calendar-day"></i> Agenda do dia</a></li>
-                <li class="nav-item"><a class="nav-link" th:classappend="${ativo == 'atendimentos'} ? active"
-                                        th:href="@{/atendimentos}"><i class="bi bi-calendar-week"></i> Horários</a></li>
-                <li class="nav-item"><a class="nav-link" th:classappend="${ativo == 'pacientes'} ? active"
-                                        th:href="@{/pacientes}"><i class="bi bi-people"></i> Pacientes</a></li>
-                <li class="nav-item"><a class="nav-link" th:classappend="${ativo == 'profissionais'} ? active"
-                                        th:href="@{/profissionais}"><i class="bi bi-person-badge"></i> Profissionais</a></li>
+                                        th:href="@{/agenda}"><i class="bi bi-calendar-day"></i>
+                    <span sec:authorize="hasRole('ADMIN')">Agenda do dia</span>
+                    <span sec:authorize="!hasRole('ADMIN')">Minha agenda</span></a></li>
+                <th:block sec:authorize="hasRole('ADMIN')">
+                    <li class="nav-item"><a class="nav-link" th:classappend="${ativo == 'atendimentos'} ? active"
+                                            th:href="@{/atendimentos}"><i class="bi bi-calendar-week"></i> Horários</a></li>
+                    <li class="nav-item"><a class="nav-link" th:classappend="${ativo == 'pacientes'} ? active"
+                                            th:href="@{/pacientes}"><i class="bi bi-people"></i> Pacientes</a></li>
+                    <li class="nav-item"><a class="nav-link" th:classappend="${ativo == 'profissionais'} ? active"
+                                            th:href="@{/profissionais}"><i class="bi bi-person-badge"></i> Profissionais</a></li>
+                    <li class="nav-item"><a class="nav-link" th:classappend="${ativo == 'usuarios'} ? active"
+                                            th:href="@{/usuarios}"><i class="bi bi-key"></i> Acessos</a></li>
+                </th:block>
+                <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                        <i class="bi bi-person-circle"></i> <span sec:authentication="name"></span></a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" th:href="@{/minha-senha}"><i class="bi bi-shield-lock"></i> Trocar senha</a></li>
+                        <li>
+                            <form th:action="@{/logout}" method="post">
+                                <button class="dropdown-item"><i class="bi bi-box-arrow-right"></i> Sair</button>
+                            </form>
+                        </li>
+                    </ul>
+                </li>
             </ul>
         </div>
     </div>

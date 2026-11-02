@@ -1,12 +1,15 @@
 package br.org.apae.sistema.web;
 
+import br.org.apae.sistema.model.Atendimento;
 import br.org.apae.sistema.model.StatusAtendimento;
+import br.org.apae.sistema.model.Usuario;
 import br.org.apae.sistema.repository.AtendimentoRepository;
 import br.org.apae.sistema.repository.PacienteRepository;
 import br.org.apae.sistema.repository.ProfissionalRepository;
 import br.org.apae.sistema.service.AgendaException;
 import br.org.apae.sistema.service.AtendimentoForm;
 import br.org.apae.sistema.service.AtendimentoService;
+import br.org.apae.sistema.security.UsuarioAtual;
 import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
@@ -21,6 +24,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.time.LocalDate;
 import java.util.Optional;
 
+import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Controller
@@ -31,13 +35,16 @@ public class AtendimentoController {
     private final ProfissionalRepository profissionais;
     private final PacienteRepository pacientes;
     private final AtendimentoService service;
+    private final UsuarioAtual usuarioAtual;
 
     public AtendimentoController(AtendimentoRepository atendimentos, ProfissionalRepository profissionais,
-                                 PacienteRepository pacientes, AtendimentoService service) {
+                                 PacienteRepository pacientes, AtendimentoService service,
+                                 UsuarioAtual usuarioAtual) {
         this.atendimentos = atendimentos;
         this.profissionais = profissionais;
         this.pacientes = pacientes;
         this.service = service;
+        this.usuarioAtual = usuarioAtual;
     }
 
     @GetMapping
@@ -102,6 +109,11 @@ public class AtendimentoController {
     @PostMapping("/{id}/status")
     public String alterarStatus(@PathVariable Long id, @RequestParam StatusAtendimento status,
                                 @RequestParam(required = false) String voltar) {
+        Usuario usuario = usuarioAtual.obter();
+        Atendimento a = atendimentos.findById(id).orElseThrow(() -> new ResponseStatusException(NOT_FOUND));
+        if (!usuario.isAdmin() && !a.getProfissional().getId().equals(usuario.getProfissional().getId())) {
+            throw new ResponseStatusException(FORBIDDEN);
+        }
         service.alterarStatus(id, status);
         return "redirect:" + destinoSeguro(voltar);
     }

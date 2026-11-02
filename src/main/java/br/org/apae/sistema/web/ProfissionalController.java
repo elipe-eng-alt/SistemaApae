@@ -3,6 +3,7 @@ package br.org.apae.sistema.web;
 import br.org.apae.sistema.model.Profissional;
 import br.org.apae.sistema.repository.AtendimentoRepository;
 import br.org.apae.sistema.repository.ProfissionalRepository;
+import br.org.apae.sistema.repository.UsuarioRepository;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -10,6 +11,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
@@ -19,15 +22,20 @@ public class ProfissionalController {
 
     private final ProfissionalRepository profissionais;
     private final AtendimentoRepository atendimentos;
+    private final UsuarioRepository usuarios;
 
-    public ProfissionalController(ProfissionalRepository profissionais, AtendimentoRepository atendimentos) {
+    public ProfissionalController(ProfissionalRepository profissionais, AtendimentoRepository atendimentos,
+                                  UsuarioRepository usuarios) {
         this.profissionais = profissionais;
         this.atendimentos = atendimentos;
+        this.usuarios = usuarios;
     }
 
     @GetMapping
     public String listar(Model model) {
         model.addAttribute("profissionais", profissionais.findAllByOrderByNomeAsc());
+        model.addAttribute("acessos", usuarios.findByProfissionalIsNotNull().stream()
+                .collect(Collectors.toMap(u -> u.getProfissional().getId(), u -> u)));
         return "profissionais/lista";
     }
 
@@ -64,6 +72,7 @@ public class ProfissionalController {
             profissionais.save(p);
             redirect.addFlashAttribute("sucesso", p.getNome() + " possui atendimentos e foi marcado(a) como inativo(a).");
         } else {
+            usuarios.findByProfissionalId(id).ifPresent(usuarios::delete);
             profissionais.delete(p);
             redirect.addFlashAttribute("sucesso", "Profissional " + p.getNome() + " excluído(a).");
         }

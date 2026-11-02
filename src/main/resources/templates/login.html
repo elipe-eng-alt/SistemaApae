@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head th:replace="~{fragments/layout :: head('Entrar')}"></head>
+<body>
+<main class="container d-flex align-items-center justify-content-center" style="min-height: 100vh">
+    <div class="card p-4" style="width: 100%; max-width: 380px">
+        <h1 class="h4 text-center mb-1"><i class="bi bi-heart-pulse text-primary"></i> Sistema APAE</h1>
+        <p class="text-center text-muted small mb-4">Entre com seu usuário e senha</p>
+
+        <div th:if="${param.error}" class="alert alert-danger py-2">Usuário ou senha incorretos.</div>
+        <div th:if="${param.saiu}" class="alert alert-info py-2">Você saiu do sistema.</div>
+
+        <form th:action="@{/login}" method="post">
+            <div class="mb-3">
+                <label class="form-label" for="username">Usuário</label>
+                <input type="text" id="username" name="username" class="form-control" autocomplete="username" autofocus required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="password">Senha</label>
+                <input type="password" id="password" name="password" class="form-control" autocomplete="current-password" required>
+            </div>
+            <button class="btn btn-primary w-100">Entrar</button>
+        </form>
+    </div>
+</main>
+</body>
+</html>

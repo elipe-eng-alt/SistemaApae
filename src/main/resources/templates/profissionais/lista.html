@@ -14,9 +14,9 @@
     <div class="card">
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
-                <thead><tr><th>Nome</th><th>Especialidade</th><th>Registro</th><th>Contato</th><th></th></tr></thead>
+                <thead><tr><th>Nome</th><th>Especialidade</th><th>Registro</th><th>Contato</th><th>Acesso</th><th></th></tr></thead>
                 <tbody>
-                <tr th:if="${#lists.isEmpty(profissionais)}"><td colspan="5" class="text-muted text-center py-4">Nenhum profissional cadastrado.</td></tr>
+                <tr th:if="${#lists.isEmpty(profissionais)}"><td colspan="6" class="text-muted text-center py-4">Nenhum profissional cadastrado.</td></tr>
                 <tr th:each="p : ${profissionais}" th:classappend="${!p.ativo} ? 'tr-inativo'">
                     <td>
                         <span th:text="${p.nome}"></span>
@@ -25,6 +25,15 @@
                     <td th:text="${p.especialidade.descricao}"></td>
                     <td th:text="${p.registro}"></td>
                     <td><div th:text="${p.telefone}"></div><div class="small text-muted" th:text="${p.email}"></div></td>
+                    <td th:with="acesso=${acessos[p.id]}">
+                        <a th:if="${acesso != null}" th:href="@{/usuarios/{id}/editar(id=${acesso.id})}"
+                           class="text-decoration-none" title="Alterar acesso">
+                            <i class="bi bi-person-check"></i> <span th:text="${acesso.login}"></span>
+                            <span th:unless="${acesso.ativo}" class="badge text-bg-secondary">bloqueado</span>
+                        </a>
+                        <a th:if="${acesso == null}" th:href="@{/usuarios/novo(profissionalId=${p.id})}"
+                           class="btn btn-sm btn-outline-primary"><i class="bi bi-key"></i> Criar acesso</a>
+                    </td>
                     <td class="text-end text-nowrap">
                         <a th:href="@{/agenda(profissionalId=${p.id})}" class="btn btn-sm btn-outline-primary" title="Agenda do dia"><i class="bi bi-calendar-day"></i> Agenda</a>
                         <a th:href="@{/atendimentos/novo(profissionalId=${p.id})}" class="btn btn-sm btn-outline-success" title="Agendar"><i class="bi bi-calendar-plus"></i></a>

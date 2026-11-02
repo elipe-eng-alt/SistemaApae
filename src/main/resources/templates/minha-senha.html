@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head th:replace="~{fragments/layout :: head('Trocar senha')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar('senha')}"></nav>
+<main class="container" style="max-width: 480px">
+    <h2 class="mb-3">Trocar senha</h2>
+    <div th:if="${obrigatoria}" class="alert alert-warning">
+        Este é seu primeiro acesso (ou a senha foi redefinida). Crie uma senha pessoal para continuar.
+    </div>
+    <div th:if="${erro}" class="alert alert-danger" th:text="${erro}"></div>
+
+    <form th:action="@{/minha-senha}" method="post" class="card card-body">
+        <div class="mb-3">
+            <label class="form-label" for="senhaAtual">Senha atual</label>
+            <input type="password" id="senhaAtual" name="senhaAtual" class="form-control" autocomplete="current-password" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="novaSenha">Nova senha</label>
+            <input type="password" id="novaSenha" name="novaSenha" class="form-control" minlength="6" autocomplete="new-password" required>
+            <div class="form-text">Pelo menos 6 caracteres.</div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="confirmacao">Repita a nova senha</label>
+            <input type="password" id="confirmacao" name="confirmacao" class="form-control" minlength="6" autocomplete="new-password" required>
+        </div>
+        <button class="btn btn-primary"><i class="bi bi-check-lg"></i> Salvar nova senha</button>
+    </form>
+</main>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

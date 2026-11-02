@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head th:replace="~{fragments/layout :: head('Acesso')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar('usuarios')}"></nav>
+<main class="container" style="max-width: 640px">
+    <h2 class="mb-3" th:text="${form.id == null} ? 'Novo acesso' : 'Editar acesso'">Acesso</h2>
+
+    <form th:action="@{/usuarios}" th:object="${form}" method="post" class="card card-body">
+        <div th:if="${#fields.hasGlobalErrors()}" class="alert alert-danger">
+            <div th:each="e : ${#fields.globalErrors()}" th:text="${e}"></div>
+        </div>
+        <input type="hidden" th:field="*{id}">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label">Perfil *</label>
+                <select th:field="*{perfil}" class="form-select" id="perfil">
+                    <option th:each="p : ${perfis}" th:value="${p}" th:text="${p.descricao}"></option>
+                </select>
+                <div class="form-text">Profissional vê só a própria agenda. Administração acessa tudo.</div>
+            </div>
+            <div class="col-md-6" id="campoProfissional">
+                <label class="form-label">Profissional *</label>
+                <select th:field="*{profissionalId}" class="form-select" th:errorclass="is-invalid">
+                    <option value="">Escolha...</option>
+                    <option th:each="p : ${profissionais}" th:value="${p.id}" th:text="${p.nome}"></option>
+                </select>
+                <div class="invalid-feedback" th:errors="*{profissionalId}"></div>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Usuário (login) *</label>
+                <input type="text" th:field="*{login}" class="form-control" th:errorclass="is-invalid"
+                       autocomplete="off" placeholder="ex.: ana.souza" required>
+                <div class="invalid-feedback" th:errors="*{login}"></div>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label" for="senha" th:text="${form.id == null} ? 'Senha inicial *' : 'Nova senha'">Senha</label>
+                <input type="password" id="senha" name="senha" class="form-control"
+                       th:classappend="${#fields.hasErrors('senha')} ? 'is-invalid'" autocomplete="new-password">
+                <div class="invalid-feedback" th:errors="*{senha}"></div>
+                <div class="form-text" th:text="${form.id == null}
+                        ? 'A pessoa deverá trocar no primeiro acesso.'
+                        : 'Deixe vazio para manter. Se preencher, a pessoa deverá trocar no próximo acesso.'"></div>
+            </div>
+            <div class="col-12 form-check ms-2">
+                <input type="checkbox" th:field="*{ativo}" class="form-check-input">
+                <label class="form-check-label" th:for="${#ids.prev('ativo')}">Acesso liberado</label>
+            </div>
+        </div>
+        <div class="mt-4 d-flex gap-2">
+            <button class="btn btn-primary"><i class="bi bi-check-lg"></i> Salvar</button>
+            <a th:href="@{/usuarios}" class="btn btn-outline-secondary">Cancelar</a>
+        </div>
+    </form>
+</main>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+<script>
+    const perfil = document.getElementById('perfil');
+    const campo = document.getElementById('campoProfissional');
+    const atualizar = () => campo.style.display = perfil.value === 'PROFISSIONAL' ? '' : 'none';
+    perfil.addEventListener('change', atualizar);
+    atualizar();
+</script>
+</body>
+</html>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="pt-BR">
 <head th:replace="~{fragments/layout :: head('Agenda do dia')}"></head>
 <body>
 <nav th:replace="~{fragments/layout :: navbar('agenda')}"></nav>
@@ -8,7 +8,7 @@
 
     <form th:action="@{/agenda}" method="get" class="card card-body mb-3 d-print-none">
         <div class="row g-2 align-items-end">
-            <div class="col-md-6">
+            <div class="col-md-6" sec:authorize="hasRole('ADMIN')">
                 <label class="form-label small">Profissional</label>
                 <select name="profissionalId" class="form-select" onchange="this.form.submit()" required>
                     <option value="">Escolha o profissional...</option>
@@ -50,7 +50,7 @@
                 <a class="btn btn-outline-secondary" th:href="@{/agenda(profissionalId=${profissional.id}, data=${data.plusDays(1)})}"
                    title="Próximo dia"><i class="bi bi-chevron-right"></i></a>
                 <button class="btn btn-outline-secondary" onclick="window.print()" title="Imprimir"><i class="bi bi-printer"></i></button>
-                <a class="btn btn-success" th:href="@{/atendimentos/novo(profissionalId=${profissional.id}, data=${data})}">
+                <a sec:authorize="hasRole('ADMIN')" class="btn btn-success" th:href="@{/atendimentos/novo(profissionalId=${profissional.id}, data=${data})}">
                     <i class="bi bi-plus-lg"></i> Agendar</a>
             </div>
         </div>
@@ -91,7 +91,7 @@
                             <input type="hidden" name="voltar" th:value="@{/agenda(profissionalId=${profissional.id}, data=${data})}">
                             <button class="btn btn-sm" th:classappend="'btn-outline-' + ${s.cor}" th:text="${s.descricao}"></button>
                         </form>
-                        <a th:href="@{/atendimentos/{id}/editar(id=${a.id})}" class="btn btn-sm btn-outline-dark" title="Editar"><i class="bi bi-pencil"></i></a>
+                        <a sec:authorize="hasRole('ADMIN')" th:href="@{/atendimentos/{id}/editar(id=${a.id})}" class="btn btn-sm btn-outline-dark" title="Editar"><i class="bi bi-pencil"></i></a>
                     </div>
                 </div>
             </div>
