@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head th:replace="~{fragments/layout :: head('Agendar atendimento')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar('atendimentos')}"></nav>
+<main class="container" style="max-width: 860px">
+    <h2 class="mb-3" th:text="${form.id == null} ? 'Agendar atendimento' : 'Editar atendimento'">Atendimento</h2>
+
+    <div th:if="${#lists.isEmpty(profissionais) or #lists.isEmpty(pacientes)}" class="alert alert-warning">
+        Antes de agendar, cadastre pelo menos um <a th:href="@{/profissionais/novo}">profissional</a>
+        e um <a th:href="@{/pacientes/novo}">paciente</a>.
+    </div>
+
+    <form th:action="@{/atendimentos}" th:object="${form}" method="post" class="card card-body">
+        <div th:if="${#fields.hasGlobalErrors()}" class="alert alert-danger">
+            <div th:each="e : ${#fields.globalErrors()}" th:text="${e}"></div>
+        </div>
+        <input type="hidden" th:field="*{id}">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label">Profissional *</label>
+                <select th:field="*{profissionalId}" class="form-select" th:errorclass="is-invalid" required>
+                    <option value="">Escolha...</option>
+                    <option th:each="p : ${profissionais}" th:value="${p.id}" th:attr="data-especialidade=${p.especialidade}"
+                            th:text="${p.nome} + ' — ' + ${p.especialidade.descricao}"></option>
+                </select>
+                <div class="invalid-feedback" th:errors="*{profissionalId}"></div>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Paciente *</label>
+                <select th:field="*{pacienteId}" class="form-select" th:errorclass="is-invalid" required>
+                    <option value="">Escolha...</option>
+                    <option th:each="p : ${pacientes}" th:value="${p.id}" th:text="${p.nome}"></option>
+                </select>
+                <div class="invalid-feedback" th:errors="*{pacienteId}"></div>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Tipo de atendimento</label>
+                <select th:field="*{tipo}" class="form-select">
+                    <option value="">Mesmo da especialidade do profissional</option>
+                    <option th:each="e : ${especialidades}" th:value="${e}" th:text="${e.descricao}"></option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Sala / local</label>
+                <input type="text" th:field="*{sala}" class="form-control" placeholder="Ex.: Sala de fisioterapia 2">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Data *</label>
+                <input type="date" th:field="*{data}" class="form-control" th:errorclass="is-invalid" required>
+                <div class="invalid-feedback" th:errors="*{data}"></div>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Início *</label>
+                <input type="time" th:field="*{horaInicio}" class="form-control" th:errorclass="is-invalid" required>
+                <div class="invalid-feedback" th:errors="*{horaInicio}"></div>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Término *</label>
+                <input type="time" th:field="*{horaFim}" class="form-control" th:errorclass="is-invalid" required>
+                <div class="invalid-feedback" th:errors="*{horaFim}"></div>
+            </div>
+
+            <div class="col-md-6" th:if="${form.id == null}">
+                <label class="form-label">Repetir toda semana até</label>
+                <input type="date" th:field="*{repetirAte}" class="form-control">
+                <div class="form-text">Deixe vazio para agendar só esta data.</div>
+            </div>
+            <div class="col-md-6" th:unless="${form.id == null}">
+                <label class="form-label">Situação</label>
+                <select th:field="*{status}" class="form-select">
+                    <option th:each="s : ${statusAtendimento}" th:value="${s}" th:text="${s.descricao}"></option>
+                </select>
+            </div>
+            <input type="hidden" th:if="${form.id == null}" th:field="*{status}">
+
+            <div class="col-12">
+                <label class="form-label">Observações</label>
+                <textarea th:field="*{observacoes}" class="form-control" rows="3"></textarea>
+            </div>
+        </div>
+        <div class="mt-4 d-flex gap-2">
+            <button class="btn btn-primary"><i class="bi bi-check-lg"></i> Salvar</button>
+            <a th:href="@{/atendimentos}" class="btn btn-outline-secondary">Cancelar</a>
+        </div>
+    </form>
+</main>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+<script>
+    // Ao escolher o término automaticamente: início + 40 minutos (sessão padrão), se ainda vazio.
+    const inicio = document.getElementById('horaInicio');
+    const fim = document.getElementById('horaFim');
+    inicio.addEventListener('change', () => {
+        if (fim.value || !inicio.value) return;
+        const [h, m] = inicio.value.split(':').map(Number);
+        const total = h * 60 + m + 40;
+        fim.value = String(Math.floor(total / 60) % 24).padStart(2, '0') + ':' + String(total % 60).padStart(2, '0');
+    });
+</script>
+</body>
+</html>

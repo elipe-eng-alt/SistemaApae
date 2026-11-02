@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head th:replace="~{fragments/layout :: head('Agenda do dia')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar('agenda')}"></nav>
+<main class="container" style="max-width: 960px">
+    <div th:replace="~{fragments/layout :: mensagens}"></div>
+
+    <form th:action="@{/agenda}" method="get" class="card card-body mb-3 d-print-none">
+        <div class="row g-2 align-items-end">
+            <div class="col-md-6">
+                <label class="form-label small">Profissional</label>
+                <select name="profissionalId" class="form-select" onchange="this.form.submit()" required>
+                    <option value="">Escolha o profissional...</option>
+                    <option th:each="p : ${profissionais}" th:value="${p.id}"
+                            th:text="${p.nome} + ' — ' + ${p.especialidade.descricao}"
+                            th:selected="${profissional != null and p.id == profissional.id}"></option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label small">Dia</label>
+                <input type="date" name="data" th:value="${data}" class="form-control" onchange="this.form.submit()">
+            </div>
+            <div class="col-md-2 d-grid">
+                <button class="btn btn-primary">Ver</button>
+            </div>
+        </div>
+    </form>
+
+    <div th:if="${profissional == null}" class="text-center text-muted py-5">
+        <i class="bi bi-person-video3 fs-1"></i>
+        <p class="mt-2">Escolha um profissional para ver os atendimentos do dia.</p>
+    </div>
+
+    <th:block th:if="${profissional != null}">
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+            <div>
+                <h2 class="mb-0" th:text="${profissional.nome}">Profissional</h2>
+                <div class="text-muted">
+                    <span th:text="${profissional.especialidade.descricao}"></span> ·
+                    <span class="text-capitalize" th:text="${#temporals.dayOfWeekName(data)}"></span>,
+                    <span th:text="${#temporals.format(data, 'dd/MM/yyyy')}"></span>
+                    <span th:if="${data == hoje}" class="badge text-bg-info">hoje</span>
+                </div>
+            </div>
+            <div class="btn-group d-print-none">
+                <a class="btn btn-outline-secondary" th:href="@{/agenda(profissionalId=${profissional.id}, data=${data.minusDays(1)})}"
+                   title="Dia anterior"><i class="bi bi-chevron-left"></i></a>
+                <a class="btn btn-outline-secondary" th:href="@{/agenda(profissionalId=${profissional.id})}">Hoje</a>
+                <a class="btn btn-outline-secondary" th:href="@{/agenda(profissionalId=${profissional.id}, data=${data.plusDays(1)})}"
+                   title="Próximo dia"><i class="bi bi-chevron-right"></i></a>
+                <button class="btn btn-outline-secondary" onclick="window.print()" title="Imprimir"><i class="bi bi-printer"></i></button>
+                <a class="btn btn-success" th:href="@{/atendimentos/novo(profissionalId=${profissional.id}, data=${data})}">
+                    <i class="bi bi-plus-lg"></i> Agendar</a>
+            </div>
+        </div>
+
+        <div th:if="${#lists.isEmpty(atendimentos)}" class="card card-body text-center text-muted py-5">
+            Nenhum atendimento neste dia.
+        </div>
+
+        <div th:each="a : ${atendimentos}" class="card mb-2 atendimento-item" th:classappend="'status-' + ${a.status}">
+            <div class="card-body d-flex flex-wrap gap-3 align-items-center">
+                <div class="hora fs-5 text-primary" style="min-width: 120px">
+                    <span th:text="${#temporals.format(a.horaInicio, 'HH:mm')}"></span>
+                    <span class="text-muted fs-6">– <span th:text="${#temporals.format(a.horaFim, 'HH:mm')}"></span></span>
+                </div>
+                <div class="flex-grow-1">
+                    <div class="fw-semibold fs-5" th:text="${a.paciente.nome}">Paciente</div>
+                    <div class="small text-muted">
+                        <span th:if="${a.paciente.idade != null}" th:text="${a.paciente.idade} + ' anos'"></span>
+                        <span th:if="${a.paciente.diagnostico}" th:text="' · ' + ${a.paciente.diagnostico}"></span>
+                    </div>
+                    <div class="small">
+                        <span th:text="${a.tipo.descricao}"></span>
+                        <span th:if="${a.sala}" th:text="' · ' + ${a.sala}"></span>
+                        <span th:if="${a.paciente.responsavel}" th:text="' · Resp.: ' + ${a.paciente.responsavel}"></span>
+                        <span th:if="${a.paciente.telefone}" th:text="' · ' + ${a.paciente.telefone}"></span>
+                    </div>
+                    <div th:if="${a.observacoes}" class="small fst-italic mt-1" th:text="${a.observacoes}"></div>
+                    <div th:if="${a.paciente.observacoes}" class="small text-danger mt-1">
+                        <i class="bi bi-exclamation-circle"></i> <span th:text="${a.paciente.observacoes}"></span>
+                    </div>
+                </div>
+                <div class="text-end">
+                    <span class="badge mb-2" th:classappend="'text-bg-' + ${a.status.cor}" th:text="${a.status.descricao}"></span>
+                    <div class="d-print-none d-flex gap-1">
+                        <form th:each="s : ${statusAtendimento}" th:if="${s != a.status}"
+                              th:action="@{/atendimentos/{id}/status(id=${a.id})}" method="post">
+                            <input type="hidden" name="status" th:value="${s}">
+                            <input type="hidden" name="voltar" th:value="@{/agenda(profissionalId=${profissional.id}, data=${data})}">
+                            <button class="btn btn-sm" th:classappend="'btn-outline-' + ${s.cor}" th:text="${s.descricao}"></button>
+                        </form>
+                        <a th:href="@{/atendimentos/{id}/editar(id=${a.id})}" class="btn btn-sm btn-outline-dark" title="Editar"><i class="bi bi-pencil"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </th:block>
+</main>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

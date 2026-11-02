@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head th:replace="~{fragments/layout :: head('Profissional')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar('profissionais')}"></nav>
+<main class="container" style="max-width: 860px">
+    <h2 class="mb-3" th:text="${profissional.id == null} ? 'Novo profissional' : 'Editar profissional'">Profissional</h2>
+
+    <form th:action="@{/profissionais}" th:object="${profissional}" method="post" class="card card-body">
+        <input type="hidden" th:field="*{id}">
+        <div class="row g-3">
+            <div class="col-md-8">
+                <label class="form-label">Nome completo *</label>
+                <input type="text" th:field="*{nome}" class="form-control" th:errorclass="is-invalid" required>
+                <div class="invalid-feedback" th:errors="*{nome}"></div>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Especialidade *</label>
+                <select th:field="*{especialidade}" class="form-select" th:errorclass="is-invalid" required>
+                    <option value="">Escolha...</option>
+                    <option th:each="e : ${especialidades}" th:value="${e}" th:text="${e.descricao}"></option>
+                </select>
+                <div class="invalid-feedback" th:errors="*{especialidade}"></div>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Registro profissional</label>
+                <input type="text" th:field="*{registro}" class="form-control" placeholder="CREFITO, CRP, CRFa...">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Telefone</label>
+                <input type="text" th:field="*{telefone}" class="form-control">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">E-mail</label>
+                <input type="email" th:field="*{email}" class="form-control" th:errorclass="is-invalid">
+                <div class="invalid-feedback" th:errors="*{email}"></div>
+            </div>
+            <div class="col-12 form-check ms-2">
+                <input type="checkbox" th:field="*{ativo}" class="form-check-input">
+                <label class="form-check-label" th:for="${#ids.prev('ativo')}">Profissional ativo</label>
+            </div>
+        </div>
+        <div class="mt-4 d-flex gap-2">
+            <button class="btn btn-primary"><i class="bi bi-check-lg"></i> Salvar</button>
+            <a th:href="@{/profissionais}" class="btn btn-outline-secondary">Cancelar</a>
+        </div>
+    </form>
+</main>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

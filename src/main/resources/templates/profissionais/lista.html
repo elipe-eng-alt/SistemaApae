@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head th:replace="~{fragments/layout :: head('Profissionais')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar('profissionais')}"></nav>
+<main class="container">
+    <div th:replace="~{fragments/layout :: mensagens}"></div>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">Professores e profissionais</h2>
+        <a th:href="@{/profissionais/novo}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Novo profissional</a>
+    </div>
+
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead><tr><th>Nome</th><th>Especialidade</th><th>Registro</th><th>Contato</th><th></th></tr></thead>
+                <tbody>
+                <tr th:if="${#lists.isEmpty(profissionais)}"><td colspan="5" class="text-muted text-center py-4">Nenhum profissional cadastrado.</td></tr>
+                <tr th:each="p : ${profissionais}" th:classappend="${!p.ativo} ? 'tr-inativo'">
+                    <td>
+                        <span th:text="${p.nome}"></span>
+                        <span th:unless="${p.ativo}" class="badge text-bg-secondary">inativo</span>
+                    </td>
+                    <td th:text="${p.especialidade.descricao}"></td>
+                    <td th:text="${p.registro}"></td>
+                    <td><div th:text="${p.telefone}"></div><div class="small text-muted" th:text="${p.email}"></div></td>
+                    <td class="text-end text-nowrap">
+                        <a th:href="@{/agenda(profissionalId=${p.id})}" class="btn btn-sm btn-outline-primary" title="Agenda do dia"><i class="bi bi-calendar-day"></i> Agenda</a>
+                        <a th:href="@{/atendimentos/novo(profissionalId=${p.id})}" class="btn btn-sm btn-outline-success" title="Agendar"><i class="bi bi-calendar-plus"></i></a>
+                        <a th:href="@{/profissionais/{id}/editar(id=${p.id})}" class="btn btn-sm btn-outline-secondary" title="Editar"><i class="bi bi-pencil"></i></a>
+                        <form th:action="@{/profissionais/{id}/excluir(id=${p.id})}" method="post" class="d-inline"
+                              onsubmit="return confirm('Excluir este profissional? Se tiver atendimentos, será apenas inativado.')">
+                            <button class="btn btn-sm btn-outline-danger" title="Excluir"><i class="bi bi-trash"></i></button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

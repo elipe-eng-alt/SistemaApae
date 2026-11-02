@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head th:replace="~{fragments/layout :: head('Paciente')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar('pacientes')}"></nav>
+<main class="container" style="max-width: 860px">
+    <h2 class="mb-3" th:text="${paciente.id == null} ? 'Novo paciente' : 'Editar paciente'">Paciente</h2>
+
+    <form th:action="@{/pacientes}" th:object="${paciente}" method="post" class="card card-body">
+        <input type="hidden" th:field="*{id}">
+        <div class="row g-3">
+            <div class="col-md-8">
+                <label class="form-label">Nome completo *</label>
+                <input type="text" th:field="*{nome}" class="form-control" th:errorclass="is-invalid" required>
+                <div class="invalid-feedback" th:errors="*{nome}"></div>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Data de nascimento</label>
+                <input type="date" th:field="*{dataNascimento}" class="form-control" th:errorclass="is-invalid">
+                <div class="invalid-feedback" th:errors="*{dataNascimento}"></div>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">CPF</label>
+                <input type="text" th:field="*{cpf}" class="form-control" maxlength="14" placeholder="000.000.000-00">
+            </div>
+            <div class="col-md-8">
+                <label class="form-label">Diagnóstico / CID / deficiência</label>
+                <input type="text" th:field="*{diagnostico}" class="form-control" placeholder="Ex.: Paralisia cerebral (G80)">
+            </div>
+            <div class="col-md-8">
+                <label class="form-label">Responsável</label>
+                <input type="text" th:field="*{responsavel}" class="form-control">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Telefone</label>
+                <input type="text" th:field="*{telefone}" class="form-control" placeholder="(00) 00000-0000">
+            </div>
+            <div class="col-12">
+                <label class="form-label">Observações</label>
+                <textarea th:field="*{observacoes}" class="form-control" rows="3"
+                          placeholder="Alergias, medicações, cuidados especiais..."></textarea>
+            </div>
+            <div class="col-12 form-check ms-2">
+                <input type="checkbox" th:field="*{ativo}" class="form-check-input">
+                <label class="form-check-label" th:for="${#ids.prev('ativo')}">Paciente ativo</label>
+            </div>
+        </div>
+        <div class="mt-4 d-flex gap-2">
+            <button class="btn btn-primary"><i class="bi bi-check-lg"></i> Salvar</button>
+            <a th:href="@{/pacientes}" class="btn btn-outline-secondary">Cancelar</a>
+        </div>
+    </form>
+</main>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head th:replace="~{fragments/layout :: head('Início')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar('inicio')}"></nav>
+<main class="container">
+    <div th:replace="~{fragments/layout :: mensagens}"></div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card p-3">
+                <div class="text-muted small">Atendimentos hoje</div>
+                <div class="fs-2 fw-bold" th:text="${#lists.size(atendimentosHoje)}">0</div>
+                <a th:href="@{/atendimentos/novo}" class="small">+ Agendar atendimento</a>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card p-3">
+                <div class="text-muted small">Pacientes ativos</div>
+                <div class="fs-2 fw-bold" th:text="${totalPacientes}">0</div>
+                <a th:href="@{/pacientes/novo}" class="small">+ Cadastrar paciente</a>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card p-3">
+                <div class="text-muted small">Profissionais ativos</div>
+                <div class="fs-2 fw-bold" th:text="${#lists.size(profissionais)}">0</div>
+                <a th:href="@{/profissionais/novo}" class="small">+ Cadastrar profissional</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title"><i class="bi bi-person-video3"></i> Ver a agenda de hoje de um profissional</h5>
+            <form th:action="@{/agenda}" method="get" class="row g-2">
+                <div class="col-md-8">
+                    <select name="profissionalId" class="form-select" required>
+                        <option value="">Escolha o profissional...</option>
+                        <option th:each="p : ${profissionais}" th:value="${p.id}"
+                                th:text="${p.nome} + ' — ' + ${p.especialidade.descricao}"></option>
+                    </select>
+                </div>
+                <div class="col-md-4 d-grid">
+                    <button class="btn btn-primary">Abrir agenda</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Atendimentos de hoje
+                <small class="text-muted" th:text="${#temporals.format(hoje, 'dd/MM/yyyy')}"></small></h5>
+            <p th:if="${#lists.isEmpty(atendimentosHoje)}" class="text-muted mb-0">Nenhum atendimento agendado para hoje.</p>
+            <div class="table-responsive" th:unless="${#lists.isEmpty(atendimentosHoje)}">
+                <table class="table table-hover align-middle mb-0">
+                    <thead><tr><th>Horário</th><th>Paciente</th><th>Profissional</th><th>Atendimento</th><th>Sala</th><th>Situação</th></tr></thead>
+                    <tbody>
+                    <tr th:each="a : ${atendimentosHoje}">
+                        <td class="hora" th:text="${#temporals.format(a.horaInicio, 'HH:mm')} + ' – ' + ${#temporals.format(a.horaFim, 'HH:mm')}"></td>
+                        <td th:text="${a.paciente.nome}"></td>
+                        <td><a th:href="@{/agenda(profissionalId=${a.profissional.id})}" th:text="${a.profissional.nome}"></a></td>
+                        <td th:text="${a.tipo.descricao}"></td>
+                        <td th:text="${a.sala}"></td>
+                        <td><span class="badge" th:classappend="'text-bg-' + ${a.status.cor}" th:text="${a.status.descricao}"></span></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

@@ -1,0 +1,14 @@
+.bg-apae { background-color: #1f5fa8; }
+body { background-color: #f4f6f9; }
+.card { border: none; box-shadow: 0 1px 3px rgba(0, 0, 0, .08); }
+.hora { font-variant-numeric: tabular-nums; font-weight: 600; white-space: nowrap; }
+.atendimento-item { border-left: 4px solid #1f5fa8; }
+.atendimento-item.status-REALIZADO { border-left-color: #198754; }
+.atendimento-item.status-FALTOU { border-left-color: #ffc107; }
+.atendimento-item.status-CANCELADO { border-left-color: #adb5bd; opacity: .7; }
+.tr-inativo { opacity: .55; }
+
+@media print {
+    body { background: #fff; }
+    .card { box-shadow: none; border: 1px solid #ccc; }
+}
